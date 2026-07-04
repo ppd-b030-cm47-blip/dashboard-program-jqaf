@@ -42,12 +42,15 @@
       `);
       win.document.close();
     }
+
     function renderTable(rows) {
       const tbody = el("schoolRows");
       tbody.innerHTML = kpiTableRowsHtml(rows);
+
       el("emptyState").hidden = rows.length > 0;
       el("tableWrap").hidden = rows.length === 0;
     }
+
     function renderZoneSummary(schools) {
       const groups = new Map();
       schools.forEach(school => {
@@ -57,6 +60,7 @@
         if (isAchieved(school.status)) group.met += 1;
         if (school.avgActual !== null) group.actuals.push(school.avgActual);
       });
+
       el("zoneSummary").innerHTML = Array.from(groups.entries())
         .sort((a, b) => b[1].count - a[1].count)
         .map(([zon, group]) => {
@@ -71,23 +75,27 @@
           `;
         }).join("") || `<tr><td colspan="4" class="empty">Tiada data</td></tr>`;
     }
+
     function point(cx, cy, radius, angle) {
       return {
         x: cx + radius * Math.cos(angle),
         y: cy + radius * Math.sin(angle)
       };
     }
+
     function arcPath(cx, cy, radius, start, end) {
       const a = point(cx, cy, radius, start);
       const b = point(cx, cy, radius, end);
       const large = end - start > Math.PI ? 1 : 0;
       return `M ${cx} ${cy} L ${a.x} ${a.y} A ${radius} ${radius} 0 ${large} 1 ${b.x} ${b.y} Z`;
     }
+
     function renderPie(schools) {
       const counts = Object.fromEntries(statusOrder.map(status => [status, 0]));
       schools.forEach(school => counts[school.status] += 1);
       const total = schools.length;
       const svg = el("statusPie");
+
       if (!total) {
         svg.innerHTML = `<circle cx="125" cy="125" r="88" fill="#e9eef5"></circle><text x="125" y="130" text-anchor="middle" fill="#657386" font-size="13" font-weight="700">Tiada data</text>`;
       } else {
@@ -106,6 +114,7 @@
         });
         svg.innerHTML = `${slices.join("")}<circle cx="125" cy="125" r="50" fill="#fff"></circle><text x="125" y="121" text-anchor="middle" fill="#17212f" font-size="22" font-weight="800">${total}</text><text x="125" y="141" text-anchor="middle" fill="#657386" font-size="11">sekolah</text>`;
       }
+
       el("statusLegend").innerHTML = statusOrder.map(status => {
         const count = counts[status];
         const percent = total ? Math.round((count / total) * 100) : 0;
@@ -118,6 +127,7 @@
         `;
       }).join("");
     }
+
     function escapeHtml(value) {
       return String(value ?? "").replace(/[&<>"']/g, char => ({
         "&": "&amp;",
@@ -127,6 +137,7 @@
         "'": "&#039;"
       }[char]));
     }
+
     setupNavigation();
     loadData().catch(error => {
       el("loadingBox").innerHTML = `<span class="error">${escapeHtml(error.message)}</span>`;
